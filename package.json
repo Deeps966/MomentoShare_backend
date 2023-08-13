@@ -2,16 +2,21 @@
   "name": "momentoshare_backend",
   "version": "1.0.0",
   "description": "RESTful API with Node.js, Express, and PostgreSQL",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node --inspect server.js"
   },
+  "keywords": [
+    "nodejs",
+    "express",
+    "mysql",
+    "restapi"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Deeps966/MomentoShare_backend.git"
   },
-  "author": "",
+  "author": "Deep Shah",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Deeps966/MomentoShare_backend/issues"
@@ -22,10 +27,12 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "mongoose": "^7.4.3",
     "passport": "^0.5.3",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.11.2",
-    "swagger-ui-express": "^5.0.0"
+    "swagger-ui-express": "^5.0.0",
+    "winston": "^3.10.0"
   }
 }
