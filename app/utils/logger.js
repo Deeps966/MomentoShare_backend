@@ -10,8 +10,6 @@ const logger = winston.createLogger({
     winston.format.colorize(),
     winston.format.align(),
   ),
-
-
   transports: [
     new winston.transports.Console(),
     // new winston.transports.File({ filename: 'application.log' }),
