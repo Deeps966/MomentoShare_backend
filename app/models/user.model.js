@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema({
   },
   age: {
     type: Number,
-    default: 0,
+    required: true
   },
 });
 

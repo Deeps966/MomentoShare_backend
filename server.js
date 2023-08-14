@@ -26,9 +26,9 @@ global.log = logger;
 // Middlewares
 app.use(express.json()) // parse requests of content-type - application/json
 app.use(express.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
-// app.use(
-//   cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
-// );
+app.use(
+  cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
+);
 app.use(cors(corsOptions));
 app.use(passport.initialize());
 app.use(passport.session());
