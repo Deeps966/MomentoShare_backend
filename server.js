@@ -33,6 +33,7 @@ app.use(cors(corsOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
+  console.log("-----------------------New Request-------------------")
   log.info(req.method + " " + req.url, req.body)
   next();
 });

@@ -6,8 +6,8 @@ const get_users = async (req, res) => {
   try {
     const users = await User.find()
     res.status(200).json(users)
-  } catch (err) {
-    res.status(500).json({ error: err.message })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
   }
 }
 
@@ -27,23 +27,23 @@ const get_user = async (req, res) => {
     }
 
     res.json(user)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  } catch (e) {
+    res.status(500).json({ message: e.message })
   }
 }
 
 // Creating One New User
 const create_user = async (req, res) => {
-  const user = new User({
-    name: req.body.name,
-    age: req.body.age
-  })
+  // const user = new User({
+  //   name: req.body.name,
+  //   age: req.body.age
+  // })
 
   try {
-    const newUser = await user.save()
+    const newUser = await User.create(req.body)
     res.status(201).json(newUser)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
+  } catch (e) {
+    res.status(500).json({ message: e.message })
   }
 }
 
@@ -64,7 +64,7 @@ const delete_user = async (req, res) => {
 
     res.status(200).json(user)
   } catch (e) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: e.message })
   }
 }
 
@@ -77,7 +77,8 @@ const update_user = async (req, res) => {
       return res.status(400).json({ error: 'No such user' })
     }
 
-    const user = await User.updateOne({ _id: id }, { $set: req.body })
+    // `new: true` The method returns the updated document after applying the update operation.
+    const user = await User.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true, runValidators: true })
 
     if (!user) {
       return res.status(400).json({ error: 'No such user' })
@@ -85,7 +86,7 @@ const update_user = async (req, res) => {
 
     res.status(200).json(user)
   } catch (e) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: e.message })
   }
 }
 
@@ -94,8 +95,8 @@ const delete_all_users = async (req, res) => {
   try {
     const users = await User.deleteMany()
     res.status(200).json(users)
-  } catch (err) {
-    res.status(500).json({ error: err.message })
+  } catch (e) {
+    res.status(500).json({ error: e.message })
   }
 }
 
