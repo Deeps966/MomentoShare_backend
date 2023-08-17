@@ -34,11 +34,6 @@ const get_user = async (req, res) => {
 
 // Creating One New User
 const create_user = async (req, res) => {
-  // const user = new User({
-  //   name: req.body.name,
-  //   age: req.body.age
-  // })
-
   try {
     const newUser = await User.create(req.body)
     res.status(201).json(newUser)

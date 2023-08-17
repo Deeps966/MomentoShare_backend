@@ -13,19 +13,19 @@ router.get("/login/failed", get_login_failed);
 router.get("/logout", get_logout);
 
 // Google Authentication
-router.get("/google", passport.authenticate("google", { scope: ["profile"] }));
+router.get("/google", passport.authenticate("google"));
 
 // Google Callback
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    successRedirect: SERVER_URL,
+    successRedirect: "/auth/login/success",
     failureRedirect: "/login/failed",
   })
 );
 
 // Facebook Authentication
-router.get("/facebook", passport.authenticate("facebook", { scope: ["profile"] }));
+router.get("/facebook", passport.authenticate("facebook"));
 
 // Facebook Callback
 router.get(

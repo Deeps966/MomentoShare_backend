@@ -1,6 +1,17 @@
 const mongoose = require("mongoose");
 
 const UserSchema = new mongoose.Schema({
+  auth_id: {
+    type: String,
+    trim: true,
+    unique: true,
+    required: true
+  },
+  auth_provider: {
+    type: String,
+    enum: ['google', 'facebook', 'apple'],
+    required: true
+  },
   email: {
     type: String,
     unique: true,
@@ -9,9 +20,10 @@ const UserSchema = new mongoose.Schema({
     match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Email pattern
     required: true
   },
+  email_verified: Boolean,
   mobile: {
     type: Number,
-    required: true,
+    required: false,
     unique: true,
     validate: {
       validator: function (value) {
@@ -21,14 +33,10 @@ const UserSchema = new mongoose.Schema({
       message: 'Mobile number must be a 10-digit number'
     }
   },
-  first_name: {
+  name: {
     type: String,
     required: true,
-    maxlength: 20
-  },
-  last_name: {
-    type: String,
-    maxlength: 20
+    maxlength: 50
   },
   gender: {
     type: String,
@@ -45,7 +53,7 @@ const UserSchema = new mongoose.Schema({
   },
   password_hash: {
     type: String,
-    required: true,
+    required: false,
     minlength: 8
   },
   avatar: {

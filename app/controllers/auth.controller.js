@@ -1,3 +1,5 @@
+const User = require('../models/user.model')
+const mongoose = require('mongoose')
 
 const get_login_success = (req, res) => {
   if (req.user) {
@@ -5,12 +7,13 @@ const get_login_success = (req, res) => {
       success: true,
       message: "successfull",
       name: req.user.displayName,
+      email: req.user.emails[0].value,
       avatar: req.user.photos[0].value,
       // user: req.user,
-      // cookies: req.cookies
+      cookies: req.cookies
     });
   }
-  else res.redirect(SERVER_URL + '/auth/login/failed')
+  else res.redirect(process.env.SERVER_URL + '/auth/login/failed')
 }
 
 const get_login_failed = (req, res) => {

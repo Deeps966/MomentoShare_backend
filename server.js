@@ -1,7 +1,7 @@
-const cookieSession = require("cookie-session");
 const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
+// const cookieSession = require("cookie-session");
 // const swaggerUi = require('swagger-ui-express');
 
 require('dotenv').config({ path: '.env.development' })
@@ -26,12 +26,14 @@ global.log = logger;
 // Middlewares
 app.use(express.json()) // parse requests of content-type - application/json
 app.use(express.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
-app.use(
-  cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
-);
+// app.use(
+//   cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
+// );
+// app.use(passport.session());
 app.use(cors(corsOptions));
 app.use(passport.initialize());
-app.use(passport.session());
+// Use JWT 
+
 app.use((req, res, next) => {
   console.log("-----------------------New Request-------------------")
   log.info(req.method + " " + req.url, req.body)
