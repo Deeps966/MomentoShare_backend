@@ -1,35 +1,53 @@
-const User = require('../models/user.model')
-const mongoose = require('mongoose')
+const { info } = require("winston");
+const { get_user } = require("../controllers/user.controller");
+const User = require("../models/user.model");
 
-const get_login_success = (req, res) => {
+const get_login_success = async (req, res) => {
   if (req.user) {
-    res.status(200).json({
-      success: true,
-      message: "successfull",
-      name: req.user.displayName,
-      email: req.user.emails[0].value,
-      avatar: req.user.photos[0].value,
-      // user: req.user,
-      cookies: req.cookies
-    });
-  }
-  else res.redirect(process.env.SERVER_URL + '/auth/login/failed')
-}
+    log.info(req.user)
 
-const get_login_failed = (req, res) => {
-  res.status(401).json({
-    success: false,
-    message: "failure",
-  });
+    try {
+      const user = await User.findById(req.user.id);
+
+      if (user) {
+
+      }
+
+      const payload = await User.create({
+        auth_id: req.user.id,
+        auth_provider: req.user.provider,
+        email: req.user.emails[0].value,
+        avatar: req.user.photos[0].value,
+        name: req.user.displayName,
+        username: req.user.displayName
+      })
+
+      // Set cookie of token
+      res.cookie("token", "Bearer " + req.user.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+      }).status(200).json({
+        success: true,
+        message: "User Created successfull",
+        user: payload
+      });
+    } catch (e) {
+      log.info(e.message)
+      res.status(500).json({ error: e.message })
+    }
+
+  }
+  else res.redirect('/auth/login/failed')
 }
 
 const get_logout = (req, res) => {
-  req.logout();
-  res.redirect(SERVER_URL);
+  // Clear the 'token' cookie
+  res.clearCookie('token');
+  // Redirect to the root route
+  res.redirect("/");
 }
 
 module.exports = {
   get_login_success,
-  get_login_failed,
   get_logout
 }

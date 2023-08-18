@@ -23,12 +23,12 @@ const get_user = async (req, res) => {
     let user = await User.findById(id)
 
     if (user == null) {
-      return res.status(404).json({ message: 'Cannot find user' })
+      return res.status(404).json({ error: 'Cannot find user' })
     }
 
     res.json(user)
   } catch (e) {
-    res.status(500).json({ message: e.message })
+    res.status(500).json({ error: e.message })
   }
 }
 
@@ -38,7 +38,7 @@ const create_user = async (req, res) => {
     const newUser = await User.create(req.body)
     res.status(201).json(newUser)
   } catch (e) {
-    res.status(500).json({ message: e.message })
+    res.status(500).json({ error: e.message })
   }
 }
 
@@ -59,7 +59,7 @@ const delete_user = async (req, res) => {
 
     res.status(200).json(user)
   } catch (e) {
-    res.status(500).json({ message: e.message })
+    res.status(500).json({ error: e.message })
   }
 }
 
@@ -81,7 +81,7 @@ const update_user = async (req, res) => {
 
     res.status(200).json(user)
   } catch (e) {
-    res.status(500).json({ message: e.message })
+    res.status(500).json({ error: e.message })
   }
 }
 

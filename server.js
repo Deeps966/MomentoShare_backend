@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const passport = require("passport");
-// const cookieSession = require("cookie-session");
+const cookieParser = require('cookie-parser');
+
 // const swaggerUi = require('swagger-ui-express');
 
 require('dotenv').config({ path: '.env.development' })
@@ -10,7 +11,8 @@ require('dotenv').config({ path: '.env.development' })
 const passportSetup = require("./app/middleware/passport.middleware"); // Setup of passport don't remove
 const logger = require('./app/utils/logger');
 const routes = require('./app/routes')
-const mongoose = require('./app/config/db.config')
+const mongoose = require('./app/config/db.config');
+const { validate_JWT_token } = require("./app/middleware/JWT.middleware");
 
 const app = express();
 const { PORT, SERVER_URL } = process.env
@@ -26,13 +28,9 @@ global.log = logger;
 // Middlewares
 app.use(express.json()) // parse requests of content-type - application/json
 app.use(express.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
-// app.use(
-//   cookieSession({ name: "session", keys: ["lama"], maxAge: 24 * 60 * 60 * 100 })
-// );
-// app.use(passport.session());
+app.use(cookieParser()); // Add the cookie-parser middleware
 app.use(cors(corsOptions));
 app.use(passport.initialize());
-// Use JWT 
 
 app.use((req, res, next) => {
   console.log("-----------------------New Request-------------------")
@@ -47,11 +45,12 @@ app.get("/", async (req, res) => {
 
 app.use("/", routes);
 
+app.use("/protected", validate_JWT_token, (req, res) => res.json({ user: req.user }));
+
 // router.use('/api-docs', swaggerUi.serve);
 // router.get('/api-docs', swaggerUi.setup(swaggerDocument));
 
 mongoose.connection.once("open", function () {
-  // listen to port
   app.listen(PORT, () => {
     log.info(`Server started at -> ${SERVER_URL}`)
   });

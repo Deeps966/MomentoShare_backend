@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
   },
   gender: {
     type: String,
-    required: true,
+    required: false,
     enum: ['male', 'female', 'other']
   },
   username: {
@@ -58,13 +58,13 @@ const UserSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    validate: {
-      validator: function (value) {
-        // Custom validator to check Base64 encoding
-        return /^data:image\/(jpeg|png|gif);base64,/.test(value);
-      },
-      message: 'Avatar must be a valid Base64 encoded string'
-    }
+    // validate: {
+    //   validator: function (value) {
+    //     // Custom validator to check Base64 encoding
+    //     return /^data:image\/(jpeg|png|gif);base64,/.test(value);
+    //   },
+    //   message: 'Avatar must be a valid Base64 encoded string'
+    // }
   },
   acc_active: {
     type: Boolean,
