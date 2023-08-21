@@ -1,26 +1,21 @@
-const { info } = require("winston");
-const { get_user } = require("../controllers/user.controller");
 const User = require("../models/user.model");
 
 const get_login_success = async (req, res) => {
   if (req.user) {
-    log.info(req.user)
-
     try {
-      const user = await User.findById(req.user.id);
+      const user = await User.findOne({ auth_id: req.user.id });
+      let payload = user
 
-      if (user) {
-
+      if (!user) {
+        payload = await User.create({
+          auth_id: req.user.id,
+          auth_provider: req.user.provider,
+          email: req.user.emails[0].value,
+          avatar: req.user.photos[0].value,
+          name: req.user.displayName,
+          username: req.user.displayName
+        })
       }
-
-      const payload = await User.create({
-        auth_id: req.user.id,
-        auth_provider: req.user.provider,
-        email: req.user.emails[0].value,
-        avatar: req.user.photos[0].value,
-        name: req.user.displayName,
-        username: req.user.displayName
-      })
 
       // Set cookie of token
       res.cookie("token", "Bearer " + req.user.token, {
@@ -28,7 +23,7 @@ const get_login_success = async (req, res) => {
         secure: process.env.NODE_ENV === "production",
       }).status(200).json({
         success: true,
-        message: "User Created successfull",
+        message: "User authenticated successfully",
         user: payload
       });
     } catch (e) {
