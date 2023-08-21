@@ -17,20 +17,23 @@ const get_login_success = async (req, res) => {
         })
       }
 
+      // Set the token in the response header
       // Set cookie of token
-      res.cookie("token", "Bearer " + req.user.token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-      }).status(200).json({
+      // res.header('Authorization', `Bearer ${req.user.token}`)
+      //   .cookie("Authorization", "Bearer " + req.user.token, {
+      //   httpOnly: true,
+      //   secure: process.env.NODE_ENV === "production",
+      // })
+      res.status(200).json({
         success: true,
         message: "User authenticated successfully",
+        token: req.user.token,
         user: payload
       });
     } catch (e) {
       log.info(e.message)
       res.status(500).json({ error: e.message })
     }
-
   }
   else res.redirect('/auth/login/failed')
 }
@@ -39,7 +42,10 @@ const get_logout = (req, res) => {
   // Clear the 'token' cookie
   res.clearCookie('token');
   // Redirect to the root route
-  res.redirect("/");
+  res.status(200).json({
+    success: true,
+    message: "Token deleted from cookie"
+  });
 }
 
 module.exports = {

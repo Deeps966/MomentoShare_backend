@@ -13,6 +13,7 @@ const logger = require('./app/utils/logger');
 const routes = require('./app/routes')
 const mongoose = require('./app/config/db.config');
 const { validate_JWT_token } = require("./app/middleware/JWT.middleware");
+const authRoute = require('./app/routes/auth.route');
 
 const app = express();
 const { PORT, SERVER_URL } = process.env
@@ -34,7 +35,8 @@ app.use(passport.initialize());
 
 app.use((req, res, next) => {
   console.log("-----------------------New Request-------------------")
-  log.info(req.method + " " + req.url, req.body)
+  log.info(req.method + " " + req.url, req.headers)
+  log.info('Request Body', req.body)
   next();
 });
 
@@ -43,8 +45,8 @@ app.get("/", async (req, res) => {
   res.status(200).send("<h1>Hello Guys,<br><br> Welcome to MomentoShare Backend</h1>")
 })
 
-app.use("/", routes);
-
+app.use("/auth", authRoute)
+app.use("/api", validate_JWT_token, routes);
 app.use("/protected", validate_JWT_token, (req, res) => res.json({ user: req.user }));
 
 // router.use('/api-docs', swaggerUi.serve);
