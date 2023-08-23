@@ -4,7 +4,7 @@
   "description": "RESTful API with Node.js, Express, and PostgreSQL",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node --inspect server.js"
   },
   "keywords": [
     "nodejs",
