@@ -1,26 +1,47 @@
 const mongoose = require("mongoose");
 
+const emailTopDomainValidator = (value) => {
+  const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'hotmail.com', 'live.com']; // Add more allowed domains as needed
+
+  const emailParts = value.split('@');
+  const domain = emailParts[emailParts.length - 1];
+
+  return allowedDomains.includes(domain.toLowerCase());
+};
+
 const UserSchema = new mongoose.Schema({
   auth_id: {
     type: String,
     trim: true,
-    unique: true,
-    required: true
+    unique: true
   },
   auth_provider: {
     type: String,
-    enum: ['google', 'facebook', 'apple'],
+    enum: ["basic", 'google', 'facebook', 'apple'],
     required: true
   },
-  email: {
+  mail: {
     type: String,
     unique: true,
     trim: true,
     lowercase: true,
-    match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Email pattern
+    // match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Email pattern
+    validate: [
+      {
+        validator: (value) => /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(value),
+        message: 'Invalid email format',
+      },
+      {
+        validator: emailTopDomainValidator,
+        message: 'Invalid email domain',
+      }
+    ],
     required: true
   },
-  email_verified: Boolean,
+  email_verified: {
+    type: Boolean,
+    default: false
+  },
   mobile: {
     type: Number,
     required: false,
@@ -47,14 +68,14 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true,
-    required: true,
+    required: false,
     trim: true,
     maxlength: 50
   },
   password_hash: {
     type: String,
     required: false,
-    minlength: 8
+    minlength: 10
   },
   avatar: {
     type: String,

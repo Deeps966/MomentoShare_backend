@@ -2,17 +2,29 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET_KEY, JWT_EXPIRY_TIME } = process.env
 
 const generate_JWT_token = (req, res, next) => {
-  if (req.user) {
-    const payload = {
-      name: req.user.displayName,
-      email: req.user.emails[0].value,
-      avatar: req.user.photos[0].value,
+  let payload = null
+
+  if (req.body.loginMethod == "basic") { // Custom Mail Password
+    payload = {
+      name: req.body.name,
+      username: req.body.username,
+      mail: req.body.mail
     }
-    const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: JWT_EXPIRY_TIME });
-    req.user.token = token;
-    next()
   }
-  else res.status(403).json({ error: "Failed to generate JWT token" })
+  else {
+    if (req.user) { // Google Auth
+      payload = {
+        name: req.user.displayName,
+        mail: req.user.emails[0].value,
+        avatar: req.user.photos[0].value,
+      }
+    }
+    else return res.status(403).json({ error: "Failed to generate JWT token OR loginMethod not specified" })
+  }
+
+  const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: JWT_EXPIRY_TIME });
+  req.token = token;
+  next()
 }
 
 const validate_JWT_token = (req, res, next) => {

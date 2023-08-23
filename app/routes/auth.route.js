@@ -1,10 +1,13 @@
 const router = require("express").Router();
 const passport = require("passport");
-const { get_login_success, get_logout } = require('../controllers/auth.controller')
+const { get_login_success, get_logout, custom_signup } = require('../controllers/auth.controller')
 const { generate_JWT_token } = require('../middleware/JWT.middleware')
 
 // Logout
-router.get("/logout", get_logout);
+router.delete("/logout", get_logout);
+
+// SignUp
+router.post("/signup", generate_JWT_token, custom_signup);
 
 // Google Authentication
 router.get("/google", passport.authenticate("google", { session: false }));
