@@ -1,105 +1,99 @@
+const router = require('express').Router();
 const User = require('../models/user.model')
-const mongoose = require('mongoose')
 
-// Getting All Users
-const get_users = async (req, res) => {
+// Create a new user
+router.post('/', async (req, res) => {
   try {
-    const users = await User.find()
-    res.status(200).json(users)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+    const createdUser = await User.create(req.body);
+    res.status(201).json(createdUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create user!!! ' + error.message });
   }
-}
+});
 
-// Getting One User
-const get_user = async (req, res) => {
-  const { id } = req.params
-
+// Get all users
+router.get('/', async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'No such user' })
-    }
-
-    let user = await User.findById(id)
-
-    if (user == null) {
-      return res.status(404).json({ error: 'Cannot find user' })
-    }
-
-    res.json(user)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+    const users = await User.find({ ...req.query });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve users ' + error.message });
   }
-}
+});
 
-// Creating One New User
-const create_user = async (req, res) => {
+// Get a single user by ID
+router.get('/:id', async (req, res) => {
   try {
-    const newUser = await User.create(req.body)
-    res.status(201).json(newUser)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
-  }
-}
-
-// Deleting One User
-const delete_user = async (req, res) => {
-  const { id } = req.params
-
-  try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'No such user' })
-    }
-
-    const user = await User.deleteOne({ _id: id })
-
+    const id = req.params.id;
+    const user = await User.findById(id);
     if (!user) {
-      return res.status(400).json({ error: 'No such user' })
+      return res.status(404).json({ error: 'User not found' });
     }
-
-    res.status(200).json(user)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to retrieve user ' + error.message });
   }
-}
+});
 
-// Updating One User
-const update_user = async (req, res) => {
-  const { id } = req.params
-
+// Update a user by ID
+router.patch('/:id', async (req, res) => {
   try {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'No such user' })
-    }
+    const id = req.params.id;
 
     // `new: true` The method returns the updated document after applying the update operation.
-    const user = await User.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true, runValidators: true })
+    const updatedUser = await User.findOneAndUpdate({ _id: id }, { $set: req.body }, { new: true, runValidators: true })
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update user ' + error.message });
+  }
+});
+
+// Delete a user by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletedUser = await User.findByIdAndDelete(id);
+    if (!deletedUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete user ' + error.message });
+  }
+});
+
+// Get User by its username 
+router.get('/username/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findOne({ username: id });
 
     if (!user) {
-      return res.status(400).json({ error: 'No such user' })
+      return res.status(404).json({ error: 'User does not exists with this Username' });
     }
-
-    res.status(200).json(user)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete user ' + error.message });
   }
-}
+});
 
-// Deleting All Users
-const delete_all_users = async (req, res) => {
+// Validates Username exists
+router.get('/check-username/:id', async (req, res) => {
   try {
-    const users = await User.deleteMany()
-    res.status(200).json(users)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
-  }
-}
+    const id = req.params.id;
+    const user = await User.findOne({ username: id });
 
-module.exports = {
-  get_users,
-  get_user,
-  create_user,
-  delete_user,
-  update_user,
-  delete_all_users
-}
+    if (!user) {
+      return res.status(200).json({ isUsernameExists: false, message: 'User does not exists with this Username' });
+    }
+    res.status(200).json({ isUsernameExists: true, message: 'User exists with this Username' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete user ' + error.message });
+  }
+});
+
+module.exports = router;

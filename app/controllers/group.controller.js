@@ -59,7 +59,7 @@ router.delete('/:id', async (req, res) => {
     if (!deletedGroup) {
       return res.status(404).json({ error: 'Group not found' });
     }
-    res.json({ message: 'Group deleted successfully' });
+    res.status(200).json({ message: 'Group deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group ' + error.message });
   }

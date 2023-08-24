@@ -60,7 +60,7 @@ router.delete('/:id', async (req, res) => {
     if (!deletedPost) {
       return res.status(404).json({ error: 'Group post not found' });
     }
-    res.json({ message: 'Group post deleted successfully' });
+    res.status(200).json({ message: 'Group post deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group post ' + error.message });
   }

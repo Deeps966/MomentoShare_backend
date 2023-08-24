@@ -60,7 +60,7 @@ router.delete('/:id', async (req, res) => {
     if (!deletedMember) {
       return res.status(404).json({ error: 'Group member not found' });
     }
-    res.json({ message: 'Group member deleted successfully' });
+    res.status(200).json({ message: 'Group member deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group member ' + error.message });
   }

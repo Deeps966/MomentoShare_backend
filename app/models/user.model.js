@@ -18,6 +18,7 @@ const UserSchema = new mongoose.Schema({
   auth_provider: {
     type: String,
     enum: ["basic", 'google', 'facebook', 'apple'],
+    default: "basic",
     required: true
   },
   mail: {
@@ -38,7 +39,7 @@ const UserSchema = new mongoose.Schema({
     ],
     required: true
   },
-  email_verified: {
+  mail_verified: {
     type: Boolean,
     default: false
   },
@@ -68,13 +69,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     unique: true,
     lowercase: true,
-    required: false,
+    required: true,
     trim: true,
     maxlength: 50
   },
   password_hash: {
     type: String,
-    required: false,
+    required: true,
     minlength: 10
   },
   avatar: {

@@ -60,7 +60,7 @@ router.delete('/:id', async (req, res) => {
     if (!deletedRole) {
       return res.status(404).json({ error: 'Group role not found' });
     }
-    res.json({ message: 'Group role deleted successfully' });
+    res.status(200).json({ message: 'Group role deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group role ' + error.message });
   }

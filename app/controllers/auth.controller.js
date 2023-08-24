@@ -1,92 +1,92 @@
+const router = require('express').Router();
 const bcrypt = require('bcrypt');
+
 const User = require("../models/user.model");
+const { isValidEmail } = require('../utils/helper');
+const { generate_JWT_token } = require('../middleware/JWT.middleware');
 
-const get_login_success = async (req, res) => {
-  try {
-    if (req.user) { // Google Auth for Login/SignUp
-      const user = await User.findOne({ auth_id: req.user.id });
-      let payload = user
-
-      // Create user when doesnot exists
-      if (!user) {
-        payload = await User.create({
-          auth_id: req.user.id,
-          auth_provider: req.user.provider,
-          mail: req.user.emails[0].value,
-          avatar: req.user.photos[0].value,
-          name: req.user.displayName,
-        })
-      }
-
-      // Set the token in the response header
-      // Set cookie of token
-      // res.header('Authorization', `Bearer ${req.user.token}`)
-      //   .cookie("Authorization", "Bearer " + req.user.token, {
-      //   httpOnly: true,
-      //   secure: process.env.NODE_ENV === "production",
-      // })
-      res.status(200).json({
-        success: true,
-        message: "User authenticated successfully",
-        token: req.user.token,
-        user: payload
-      });
-    } else res.status(400).json({ error: "User doesnot exists!!!" })
-  } catch (e) {
-      log.info(e.message)
-      res.status(500).json({ error: e.message })
-    }
-}
-
-const custom_signup = async (req, res) => {
+// New User SignUp 
+router.post("/signup", async (req, res) => {
   try {
     const { username, mail, password } = req.body;
 
-    const user = await User.findOne({ auth_provider: "basic", username, mail });
+    if (!username || !mail || !password) return res.status(400).json({ error: "Username, Mail and Password are required" })
+
+    const user = await User.findOne({
+      $or: [
+        { username: username },
+        { mail: mail }
+      ]
+    });
 
     // Check if the username already exists
     if (user) {
-      return res.status(400).json({ message: 'Username already exists' });
+      return res.status(400).json({ error: 'User already exists with same Mail or username' });
     }
 
-    let hashedPassword = ""
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (password) {
-      // Hash the password
-      hashedPassword = await bcrypt.hash(password, 10);
-    } else {
-      throw new Error("Password field not found")
-    }
-
-    req.body.auth_provider = "basic";
-    req.body.hash_password = hashedPassword;
+    req.body.password_hash = hashedPassword;
 
     // Create a new user
     let payload = await User.create(req.body);
 
     res.status(200).json({
-      success: true,
       message: "User registered successfully",
-      token: req.token,
-      user: payload
+      user: payload,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to SignUp User ' + error.message });
+    res.status(500).json({ error: 'Failed to SignUp: ' + error.message });
   }
-}
+});
 
-const get_logout = (req, res) => {
-  // Clear the 'token' cookie
+// User Login with credentials
+router.post("/login", async (req, res) => {
+  try {
+    const { id, password } = req.body
+    let mail = false, userData = null;
+
+    if (id && password) {
+      if (isValidEmail(id)) {
+        mail = true
+      }
+
+      if (mail) {
+        userData = await User.find({ mail: id })
+        if (userData.length == 0) res.status(404).json({ error: "User not registered with mail id: " + id })
+      } else {
+        userData = await User.find({ username: id })
+        if (userData.length == 0) res.status(404).json({ error: "User not registered with username: " + id })
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, userData[0].password_hash)
+      if (!isPasswordValid) res.status(403).json({ error: "Incorrect Password" })
+
+      const payload = {
+        name: userData[0].name,
+        mail: userData[0].mail,
+        username: userData[0].username,
+      }
+      const token = generate_JWT_token(payload)
+
+      res.status(200).json({
+        message: "User authenticated successfully",
+        token: token,
+        user: payload
+      });
+    } else res.status(401).json({ error: "Id and password are required" })
+
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to Login: ' + error.message });
+  }
+});
+
+// Logout User and remove JWT token
+router.delete("/logout", (req, res) => {
   res.clearCookie('token');
-  // Redirect to the root route
   res.status(200).json({
-    success: true,
     message: "Token deleted from cookie"
   });
-}
+});
 
-module.exports = {
-  get_login_success,
-  custom_signup,
-  get_logout
-}
+module.exports = router;
