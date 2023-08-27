@@ -19,7 +19,6 @@ const UserSchema = new mongoose.Schema({
     type: String,
     enum: ["basic", 'google', 'facebook', 'apple'],
     default: "basic",
-    required: true
   },
   mail: {
     type: String,
