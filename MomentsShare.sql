@@ -6,7 +6,7 @@ CREATE TABLE "user" (
   "last_name" varchar(20),
   "gender" varchar(20) NOT NULL,
   "username" varchar(50) UNIQUE NOT NULL,
-  "password_hash" varchar(20) NOT NULL,
+  "password" varchar(20) NOT NULL,
   "image" varchar(255),
   "acc_active" Boolean DEFAULT true,
   "is_reported" Boolean DEFAULT false,

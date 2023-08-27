@@ -1,20 +1,16 @@
 const mongoose = require('mongoose');
 
 const groupSchema = new mongoose.Schema({
-  created_by: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: true,
-  },
-  updated_by: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to the User model
-    required: true,
-  },
   name: {
     type: String,
     required: true,
     maxlength: 50,
+  },
+  groupType: {
+    type: String,
+    enum: ['PUBLIC', 'PRIVATE'],
+    required: true,
+    maxlength: 20,
   },
   description: {
     type: String,
@@ -24,40 +20,80 @@ const groupSchema = new mongoose.Schema({
     type: String, // You might want to store the image as a URL or a path
     maxlength: 255,
   },
-  group_type: {
-    type: String,
-    enum: ['Public', 'Private'],
-    required: true,
-    maxlength: 20,
-  },
-  members_count: {
-    type: Number,
-    required: true,
-    default: 1,
-  },
-  invite_code: {
-    type: String,
-    maxlength: 50,
-  },
-  anyone_can_join: {
-    type: Boolean,
-    default: false,
-  },
-  anyone_can_change: {
-    type: Boolean,
-    default: false,
-  },
-  hide_delete_folder: {
-    type: Boolean,
-    default: false,
-  },
-  created_at: {
-    type: Date,
-    default: Date.now,
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now,
+  members: [
+    {
+      memberID: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // Reference to the User model
+        required: true,
+      },
+      memberRole: {
+        type: String,
+        enum: ["ADMIN", "MEMBER"],
+        required: true
+      },
+      joinedAt: {
+        type: Date,
+        default: Date.now,
+      },
+      isLeft: {
+        type: Boolean,
+        default: false,
+      },
+      isNotificationMute: {
+        type: Boolean,
+        default: false,
+      },
+    }
+  ],
+  photos: [
+    {
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'GroupPost', // Reference to the GroupPost model
+        required: true,
+      },
+    }
+  ],
+  details: {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', // Reference to the User model
+      required: true,
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User', // Reference to the User model
+      required: true,
+    },
+    membersCount: {
+      type: Number,
+      default: 1,
+    },
+    inviteCode: {
+      type: String,
+      maxlength: 50,
+    },
+    isAnyoneCanJoin: {
+      type: Boolean,
+      default: false,
+    },
+    isAnyoneCanChange: {
+      type: Boolean,
+      default: false,
+    },
+    isHideDeleteFolder: {
+      type: Boolean,
+      default: false,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
 });
 

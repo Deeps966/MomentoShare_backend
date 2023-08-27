@@ -1,29 +1,29 @@
 const mongoose = require('mongoose')
 
 const groupPostSchema = new mongoose.Schema({
-  group_id: {
+  groupID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group', // Reference to the Group model
     required: true,
   },
-  user_id: {
+  userID: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model
     required: true,
   },
-  image_url: {
+  mediaUrl: {
     type: String,
     unique: true,
-    required: true,
-    maxlength: 255,
+    required: true, 
   },
-  image_filetype: {
+  mediaFiletype: {
     type: String,
     enum: ['jpg', 'jpeg', 'png', 'gif'],
-    maxlength: 20,
+    required: true
   },
-  image_size: {
+  mediaFileSize: {
     type: Number,
+    required: true
   },
 });
 

@@ -5,6 +5,9 @@ const Group = require('../models/group.model') // Import the Group model
 router.post('/', async (req, res) => {
   try {
     const groupData = req.body;
+    groupData.created_by = req.user.id;
+    groupData.updated_by = req.user.id;
+
     const newGroup = await Group.create(groupData);
     res.status(201).json(newGroup);
   } catch (error) {
@@ -15,7 +18,9 @@ router.post('/', async (req, res) => {
 // Get all groups
 router.get('/', async (req, res) => {
   try {
-    const groups = await Group.find();
+    const query = { created_by: req.user.id, ...req.query }
+    log.info(query);
+    const groups = await Group.find(query);
     res.json(groups);
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve groups ' + error.message });
@@ -23,18 +28,18 @@ router.get('/', async (req, res) => {
 });
 
 // Get a single group by ID
-router.get('/:id', async (req, res) => {
-  try {
-    const groupId = req.params.id;
-    const group = await Group.findById(groupId);
-    if (!group) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-    res.json(group);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve group ' + error.message });
-  }
-});
+// router.get('/:id', async (req, res) => {
+//   try {
+//     const groupId = req.params.id;
+//     const group = await Group.findById(groupId);
+//     if (!group) {
+//       return res.status(404).json({ error: 'Group not found' });
+//     }
+//     res.json(group);
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to retrieve group ' + error.message });
+//   }
+// });
 
 // Update a group by ID
 router.put('/:id', async (req, res) => {

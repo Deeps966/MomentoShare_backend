@@ -10,16 +10,6 @@ const emailTopDomainValidator = (value) => {
 };
 
 const UserSchema = new mongoose.Schema({
-  auth_id: {
-    type: String,
-    trim: true,
-    unique: true
-  },
-  auth_provider: {
-    type: String,
-    enum: ["basic", 'google', 'facebook', 'apple'],
-    default: "basic",
-  },
   mail: {
     type: String,
     unique: true,
@@ -38,13 +28,13 @@ const UserSchema = new mongoose.Schema({
     ],
     required: true
   },
-  mail_verified: {
-    type: Boolean,
-    default: false
+  password: {
+    type: String,
+    required: true,
+    minlength: 10
   },
   mobile: {
     type: Number,
-    required: false,
     unique: true,
     validate: {
       validator: function (value) {
@@ -54,59 +44,86 @@ const UserSchema = new mongoose.Schema({
       message: 'Mobile number must be a 10-digit number'
     }
   },
-  name: {
-    type: String,
-    required: true,
-    maxlength: 50
+  oAuth: {
+    authID: {
+      type: String,
+      trim: true,
+      unique: true
+    },
+    authProvider: {
+      type: String,
+      enum: ["BASIC", 'GOOGLE', 'FACEBOOK', 'APPLE'],
+      default: "BASIC",
+    },
   },
-  gender: {
-    type: String,
-    required: false,
-    enum: ['male', 'female', 'other']
-  },
-  username: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    required: true,
-    trim: true,
-    maxlength: 50
-  },
-  password_hash: {
-    type: String,
-    required: true,
-    minlength: 10
-  },
-  avatar: {
-    type: String,
-    validate: {
-      validator: function (value) {
-        // Custom validator to check Base64 encoding
-        return /^data:image\/(jpeg|png|gif);base64,/.test(value);
-      },
-      message: 'Avatar must be a valid Base64 encoded string'
+  details: {
+    username: {
+      type: String,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      maxlength: 50
+    },
+    isMailVerified: {
+      type: Boolean,
+      default: false
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    isReported: {
+      type: Boolean,
+      default: false
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
     }
   },
-  acc_active: {
-    type: Boolean,
-    default: true
-  },
-  is_reported: {
-    type: Boolean,
-    default: false
-  },
-  is_blocked: {
-    type: Boolean,
-    default: false
-  },
-  created_at: {
-    type: Date,
-    default: Date.now
-  },
-  updated_at: {
-    type: Date,
-    default: Date.now
-  }
+  profileList: [
+    {
+      isPrimary: {
+        type: Boolean,
+        default: false
+      },
+      firstName: {
+        type: String,
+      },
+      lastName: {
+        type: String,
+      },
+      image: {
+        type: String,
+        validate: {
+          validator: function (value) {
+            // Custom validator to check Base64 encoding
+            return /^data:image\/(jpeg|png|gif);base64,/.test(value);
+          },
+          message: 'Avatar must be a valid Base64 encoded string'
+        }
+      },
+      gender: {
+        type: String,
+        enum: ['MALE', 'FEMALE', 'OTHER']
+      },
+      groupList: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Group', // Reference to the User model
+          required: true,
+        },
+      ]
+    }
+  ]
 });
 
 const User = mongoose.model("User", UserSchema);

@@ -26,7 +26,7 @@ router.post("/signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    req.body.password_hash = hashedPassword;
+    req.body.password = hashedPassword;
 
     // Create a new user
     let payload = await User.create(req.body);
@@ -59,10 +59,11 @@ router.post("/login", async (req, res) => {
         if (userData.length == 0) res.status(404).json({ error: "User not registered with username: " + id })
       }
 
-      const isPasswordValid = await bcrypt.compare(password, userData[0].password_hash)
+      const isPasswordValid = await bcrypt.compare(password, userData[0].password)
       if (!isPasswordValid) res.status(403).json({ error: "Incorrect Password" })
 
       const payload = {
+        id: userData[0]._id,
         name: userData[0].name,
         mail: userData[0].mail,
         username: userData[0].username,
