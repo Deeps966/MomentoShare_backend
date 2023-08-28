@@ -1,13 +1,5 @@
 const mongoose = require("mongoose");
-
-const emailTopDomainValidator = (value) => {
-  const allowedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'hotmail.com', 'live.com']; // Add more allowed domains as needed
-
-  const emailParts = value.split('@');
-  const domain = emailParts[emailParts.length - 1];
-
-  return allowedDomains.includes(domain.toLowerCase());
-};
+const { isValidPhoneNumber, isValidEmailDomain, isValidEmail, isValidBase64 } = require("../utils/helper");
 
 const UserSchema = new mongoose.Schema({
   mail: {
@@ -15,15 +7,14 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    // match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Email pattern
     validate: [
       {
-        validator: (value) => /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(value),
-        message: 'Invalid email format',
+        validator: isValidEmail,
+        message: 'Invalid email ID',
       },
       {
-        validator: emailTopDomainValidator,
-        message: 'Invalid email domain',
+        validator: isValidEmailDomain,
+        message: 'Invalid email domain i.e. "abc@xyz.com"',
       }
     ],
     required: true
@@ -33,23 +24,13 @@ const UserSchema = new mongoose.Schema({
     required: true,
     minlength: 10
   },
-  mobile: {
+  phoneNumber: {
     type: Number,
     unique: true,
     validate: {
-      validator: function (value) {
-        // Custom validator to check that the mobile number is a 10-digit number
-        return /^[0-9]{10}$/.test(value.toString());
-      },
+      validator: isValidPhoneNumber,
       message: 'Mobile number must be a 10-digit number'
     }
-  },
-  username: {
-    type: String,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    maxlength: 50
   },
   userType: {
     type: String,
@@ -94,33 +75,33 @@ const UserSchema = new mongoose.Schema({
       default: Date.now
     }
   },
-  profileList: [
+  profiles: [
     {
       isPrimary: {
         type: Boolean,
         default: false
       },
-      firstName: {
+      name: {
         type: String,
+        required: true
       },
       lastName: {
         type: String,
+        required: true
       },
       image: {
         type: String,
-        validate: {
-          validator: function (value) {
-            // Custom validator to check Base64 encoding
-            return /^data:image\/(jpeg|png|gif);base64,/.test(value);
-          },
-          message: 'Avatar must be a valid Base64 encoded string'
-        }
+        // validate: {
+        //   validator: isValidBase64,
+        //   message: 'Avatar must be a valid Base64 encoded string'
+        // },
+        required: true
       },
       gender: {
         type: String,
         enum: ['MALE', 'FEMALE', 'OTHER']
       },
-      groupList: [
+      groups: [
         {
           type: mongoose.Schema.Types.ObjectId,
           ref: 'Group', // Reference to the Group model
@@ -133,7 +114,15 @@ const UserSchema = new mongoose.Schema({
           ref: 'GroupPost', // Reference to the GroupPost model
           required: true,
         }
-      ]
+      ],
+      createdAt: {
+        type: Date,
+        default: Date.now
+      },
+      updatedAt: {
+        type: Date,
+        default: Date.now
+      }
     }
   ]
 });

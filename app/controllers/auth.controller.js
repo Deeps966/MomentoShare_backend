@@ -8,20 +8,15 @@ const { generate_JWT_token } = require('../middleware/JWT.middleware');
 // New User SignUp 
 router.post("/signup", async (req, res) => {
   try {
-    const { username, mail, password } = req.body;
+    const { mail, password } = req.body;
 
-    if (!username || !mail || !password) return res.status(400).json({ error: "username, mail and password are required" })
+    if (!mail || !password) return res.status(400).json({ error: "mail and password are required" })
 
-    const user = await User.findOne({
-      $or: [
-        { username },
-        { mail }
-      ]
-    });
+    const user = await User.findOne({ mail });
 
-    // Check if the username already exists
+    // Check if the user already exists
     if (user) {
-      return res.status(400).json({ error: 'User already exists with same Mail or username' });
+      return res.status(400).json({ error: 'User already exists with same Mail' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

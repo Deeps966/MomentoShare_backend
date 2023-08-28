@@ -2,6 +2,63 @@ const router = require('express').Router();
 const User = require('../models/user.model')
 const adminMiddleware = require("../middleware/admin.middleware")
 
+// Create Profile by User id
+router.post('/create-profile', async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const profileCount = user.profiles.length;
+    const profileID = profileCount + 1;
+    let isPrimary = false;
+
+    if (profileCount == 0) {
+      isPrimary = true
+    }
+
+    const profile = await User.findOneAndUpdate(
+      { _id: req.user.id },
+      { $push: { profiles: { ...req.body, profileID, isPrimary } } },
+      { new: true, runValidators: true }
+    );
+
+    res.json(profile);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to Create profile ' + error.message });
+  }
+});
+
+
+
+// Get Primary profile data
+router.get('/my-profile', async (req, res) => {
+  try {
+    const user = await User.findOne(
+      { _id: req.user.id },
+      { 'profiles': { $elemMatch: { isPrimary: true } } }
+    )
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to Get profile by id ' + error.message });
+  }
+});
+
+// Get Profile by profile id
+router.get('/get-profile/:id', async (req, res) => {
+  try {
+    const profileID = req.params.id
+    const user = await User.findOne(
+      { _id: req.user.id },
+      { 'profiles': { $elemMatch: { _id: profileID } } }
+    )
+
+    if (user.profiles.length == 0) return res.status(404).json({ error: "Profile Not found" })
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to Get profile by id ' + error.message });
+  }
+});
+
 // Get all users
 router.get('/', adminMiddleware, async (req, res) => {
   try {
@@ -57,38 +114,6 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete user ' + error.message });
-  }
-});
-
-// Get User by its username 
-router.get('/username/:id', async (req, res) => {
-  try {
-    const username = req.params.id;
-    if (req.user.userType === "USER" && username !== req.user.username) return res.status(403).json({ message: "Don't have access to get other username details" })
-
-    const user = await User.findOne({ username });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User does not exists with this Username' });
-    }
-    res.status(200).json(user);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete user ' + error.message });
-  }
-});
-
-// Validates Username exists
-router.get('/check-username/:id', async (req, res) => {
-  try {
-    const id = req.params.id;
-    const user = await User.findOne({ username: id });
-
-    if (!user) {
-      return res.status(200).json({ isUsernameExists: false, message: 'User does not exists with this Username' });
-    }
-    res.status(200).json({ isUsernameExists: true, message: 'User exists with this Username' });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete user ' + error.message });
   }
