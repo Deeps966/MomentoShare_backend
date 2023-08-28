@@ -54,8 +54,8 @@ router.post("/login", async (req, res) => {
         userData = await User.find({ mail: id })
         if (userData.length == 0) return res.status(404).json({ error: "User not registered with mail id: " + id })
       } else {
-        userData = await User.find({ username: id })
-        if (userData.length == 0) return res.status(404).json({ error: "User not registered with username: " + id })
+        userData = await User.find({ phoneNumber: id })
+        if (userData.length == 0) return res.status(404).json({ error: "User not registered with phoneNumber: " + id })
       }
 
       const isPasswordValid = await bcrypt.compare(password, userData[0].password)

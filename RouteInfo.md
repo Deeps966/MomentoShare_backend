@@ -2,7 +2,7 @@
 
 | Route                                 | Method | Description                                                                       |
 | ------------------------------------- | ------ | --------------------------------------------------------------------------------- |
-| **HOME**                             |        |                                                                                   |
+| **HOME**                        |        |                                                                                   |
 | /                                     | GET    | Seputnds the welcome HTML page                                                    |
 |                                       |        |                                                                                   |
 | **AUTH**                        |        |                                                                                   |
@@ -26,14 +26,17 @@
 | /api/check-username/:id (deprecated)  | GET    | Checks whether the username already exists or not in database                    |
 |                                       |        |                                                                                   |
 | **PROFILES**                    |        |                                                                                   |
-| /api/users/create-profile             | POST   | Create New Profile of User                                                        |
-| /api/users/my-profile                 | GET    | Get Primary Profile details                                                       |
-| /api/users/get-profile/:id            | GET    | Get Profile Details by ProfileID                                                  |
+| /api/profiles                         | GET    | Get All Profiles of Current User                                                  |
+| /api/profiles                         | POST   | Create New Profile of Current User                                                |
+| /api/profiles/my-profile              | GET    | Get Primary Profile details                                                       |
+| /api/profiles/:id                     | GET    | Get Profile Details by ProfileID                                                  |
+| /api/profiles/:id                     | PATCH  | Update Profile Details by ProfileID                                               |
+| /api/profiles/upload-avatar           | POST   | Upload Image file and get Uploaded Image URL                                      |
 |                                       |        |                                                                                   |
 | **GROUPS**                      |        |                                                                                   |
-| /api/groups                           | GET    | Get all groups data                                                               |
-| /api/groups/:id                       | GET    | Get single group data                                                             |
-| /api/groups                           | POST   | Create a new Group with User id passed in body                                    |
+| /api/groups/my-groups                 | GET    | Get Joined & Created groups of Current User                                       |
+| /api/groups/:id                       | GET    | Get single group details of Current User                                          |
+| /api/groups                           | POST   | Create a new Group of Current User                                                |
 | /api/groups                           | PUT    | Updates the whole Group object which is passed                                    |
 | /api/groups/:id                       | DELETE | Delete a single group by ID                                                       |
 |                                       |        |                                                                                   |

@@ -15,7 +15,7 @@ const groupSchema = new mongoose.Schema({
     type: String,
     maxlength: 255,
   },
-  image: {
+  groupPhoto: {
     type: String, // You might want to store the image as a URL or a path
     maxlength: 255,
   },
