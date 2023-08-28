@@ -10,7 +10,6 @@ const groupSchema = new mongoose.Schema({
     type: String,
     enum: ['PUBLIC', 'PRIVATE'],
     required: true,
-    maxlength: 20,
   },
   description: {
     type: String,

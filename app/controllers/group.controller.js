@@ -4,11 +4,20 @@ const Group = require('../models/group.model') // Import the Group model
 // Create a new group
 router.post('/', async (req, res) => {
   try {
+    const id = req.user.id;
     const groupData = req.body;
-    groupData.created_by = req.user.id;
-    groupData.updated_by = req.user.id;
+    let { details, members } = groupData;
 
-    const newGroup = await Group.create(groupData);
+    console.log(...members)
+    members = [
+      {
+        memberID: id,
+        memberRole: "ADMIN"
+      },
+      ...members
+    ]
+
+    const newGroup = await Group.create({ ...groupData, details: { createdBy: id, updatedBy: id, ...details }, members });
     res.status(201).json(newGroup);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create group!!! ' + error.message });
@@ -18,7 +27,7 @@ router.post('/', async (req, res) => {
 // Get all groups
 router.get('/', async (req, res) => {
   try {
-    const query = { created_by: req.user.id, ...req.query }
+    const query = { details: { createdBy: req.user.id }, ...req.query }
     log.info(query);
     const groups = await Group.find(query);
     res.json(groups);

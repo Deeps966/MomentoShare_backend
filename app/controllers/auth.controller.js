@@ -10,12 +10,12 @@ router.post("/signup", async (req, res) => {
   try {
     const { username, mail, password } = req.body;
 
-    if (!username || !mail || !password) return res.status(400).json({ error: "Username, Mail and Password are required" })
+    if (!username || !mail || !password) return res.status(400).json({ error: "username, mail and password are required" })
 
     const user = await User.findOne({
       $or: [
-        { username: username },
-        { mail: mail }
+        { username },
+        { mail }
       ]
     });
 
@@ -27,6 +27,10 @@ router.post("/signup", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     req.body.password = hashedPassword;
+
+    if (req.body.adminKey === process.env.ADMIN_KEY) {
+      req.body.userType = "ADMIN"
+    }
 
     // Create a new user
     let payload = await User.create(req.body);
@@ -53,27 +57,24 @@ router.post("/login", async (req, res) => {
 
       if (mail) {
         userData = await User.find({ mail: id })
-        if (userData.length == 0) res.status(404).json({ error: "User not registered with mail id: " + id })
+        if (userData.length == 0) return res.status(404).json({ error: "User not registered with mail id: " + id })
       } else {
         userData = await User.find({ username: id })
-        if (userData.length == 0) res.status(404).json({ error: "User not registered with username: " + id })
+        if (userData.length == 0) return res.status(404).json({ error: "User not registered with username: " + id })
       }
 
       const isPasswordValid = await bcrypt.compare(password, userData[0].password)
-      if (!isPasswordValid) res.status(403).json({ error: "Incorrect Password" })
+      if (!isPasswordValid) return res.status(403).json({ error: "Incorrect Password" })
 
       const payload = {
-        id: userData[0]._id,
-        name: userData[0].name,
-        mail: userData[0].mail,
-        username: userData[0].username,
+        id: userData[0]._id
       }
       const token = generate_JWT_token(payload)
 
       res.status(200).json({
         message: "User authenticated successfully",
         token: token,
-        user: payload
+        id: payload
       });
     } else res.status(401).json({ error: "Id and password are required" })
 

@@ -33,6 +33,15 @@ app.use(cookieParser()); // Add the cookie-parser middleware
 app.use(cors(corsOptions));
 app.use(passport.initialize());
 
+// Error handling middleware for JSON parsing errors
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return res.status(400).json({ message: 'Invalid JSON payload' });
+  }
+  next();
+});
+
+// Logging every request with body and headers
 app.use((req, res, next) => {
   console.log("-----------------------New Request-------------------")
   log.info(req.method + " " + req.url, req.headers)

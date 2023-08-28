@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const User = require('../models/user.model');
 const { JWT_SECRET_KEY, JWT_EXPIRY_TIME } = process.env
 
 const generate_JWT_token = (payload) => {
@@ -10,7 +11,7 @@ const generate_JWT_token = (payload) => {
   }
 }
 
-const validate_JWT_token = (req, res, next) => {
+const validate_JWT_token = async (req, res, next) => {
   // Get the JWT token from the request header
   let token = req.headers.authorization;
 
@@ -22,12 +23,24 @@ const validate_JWT_token = (req, res, next) => {
     // Verify the token
     token = token.replace('Bearer ', '');
     const decoded = jwt.verify(token, JWT_SECRET_KEY);
-    req.user = decoded; // Attach the decoded user information to the request
-    req.user.authorized = true;
+
+    const userData = await getUserByID(decoded.id);
+    if (!userData) {
+      return res.status(404).json({ error: 'User Not Found' });
+    }
+    req.user = userData;
     next(); // Continue to the next middleware/route
   } catch (error) {
     return res.status(403).json({ error: 'Invalid token: ' + error.message });
   }
+}
+
+const getUserByID = async (id) => {
+  const user = await User.findById(id);
+  if (!user) {
+    return false
+  }
+  return user;
 }
 
 module.exports = {

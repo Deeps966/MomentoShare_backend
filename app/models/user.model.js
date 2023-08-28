@@ -44,6 +44,18 @@ const UserSchema = new mongoose.Schema({
       message: 'Mobile number must be a 10-digit number'
     }
   },
+  username: {
+    type: String,
+    unique: true,
+    lowercase: true,
+    trim: true,
+    maxlength: 50
+  },
+  userType: {
+    type: String,
+    enum: ["ADMIN", "USER"],
+    default: "USER"
+  },
   oAuth: {
     authID: {
       type: String,
@@ -57,13 +69,6 @@ const UserSchema = new mongoose.Schema({
     },
   },
   details: {
-    username: {
-      type: String,
-      unique: true,
-      lowercase: true,
-      trim: true,
-      maxlength: 50
-    },
     isMailVerified: {
       type: Boolean,
       default: false
@@ -118,9 +123,16 @@ const UserSchema = new mongoose.Schema({
       groupList: [
         {
           type: mongoose.Schema.Types.ObjectId,
-          ref: 'Group', // Reference to the User model
+          ref: 'Group', // Reference to the Group model
           required: true,
         },
+      ],
+      myPhotos: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'GroupPost', // Reference to the GroupPost model
+          required: true,
+        }
       ]
     }
   ]
