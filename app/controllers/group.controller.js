@@ -9,14 +9,6 @@ router.post('/', async (req, res) => {
     const groupData = req.body;
     let { details, members } = groupData;
 
-    members = [
-      {
-        memberID: id,
-        memberRole: "ADMIN"
-      },
-      ...members
-    ]
-
     const newGroup = await Group.create({ ...groupData, details: { createdBy: id, updatedBy: id, ...details }, members });
     res.status(201).json(newGroup);
   } catch (error) {
@@ -90,11 +82,18 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const groupId = req.params.id;
-    const deletedGroup = await Group.findByIdAndDelete(groupId);
-    if (!deletedGroup) {
-      return res.status(404).json({ error: 'Group not found' });
-    }
-    res.status(200).json({ message: 'Group deleted successfully' });
+    const deletedGroup = await Group.findOne({
+      _id: groupId,
+      'members': { $elemMatch: { memberID: req.user.id, memberRole: 'ADMIN' } }
+    });
+
+
+    // { 'details.createdBy': req.user.id },
+    // { 'members': { $elemMatch: { 'memberID': req.user.id } } }
+    // if (!deletedGroup) {
+    //   return res.status(404).json({ error: 'Group not found' });
+    // }
+    res.status(200).json({ message: 'Group deleted successfully', deletedGroup });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group ' + error.message });
   }

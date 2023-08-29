@@ -69,7 +69,7 @@ router.post("/login", async (req, res) => {
       res.status(200).json({
         message: "User authenticated successfully",
         token: token,
-        id: payload
+        user: payload
       });
     } else res.status(401).json({ error: "Id and password are required" })
 

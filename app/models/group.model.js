@@ -26,6 +26,10 @@ const groupSchema = new mongoose.Schema({
         ref: 'User', // Reference to the User model
         required: true,
       },
+      profileID: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+      },
       memberRole: {
         type: String,
         enum: ["ADMIN", "MEMBER"],

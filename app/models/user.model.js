@@ -26,7 +26,6 @@ const UserSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: Number,
-    unique: true,
     validate: {
       validator: isValidPhoneNumber,
       message: 'Mobile number must be a 10-digit number'
@@ -41,7 +40,6 @@ const UserSchema = new mongoose.Schema({
     authID: {
       type: String,
       trim: true,
-      unique: true
     },
     authProvider: {
       type: String,
@@ -51,6 +49,10 @@ const UserSchema = new mongoose.Schema({
   },
   details: {
     isMailVerified: {
+      type: Boolean,
+      default: false
+    },
+    isProfileVerified: {
       type: Boolean,
       default: false
     },
@@ -75,56 +77,51 @@ const UserSchema = new mongoose.Schema({
       default: Date.now
     }
   },
-  profiles: [
-    {
-      isPrimary: {
-        type: Boolean,
-        default: false
+  profile:
+  {
+    name: {
+      type: String,
+      required: true
+    },
+    lastName: {
+      type: String,
+      required: true
+    },
+    avatar: {
+      type: String,
+      // validate: {
+      //   validator: isValidBase64,
+      //   message: 'Avatar must be a valid Base64 encoded string'
+      // },
+      required: true
+    },
+    gender: {
+      type: String,
+      enum: ['MALE', 'FEMALE', 'OTHER']
+    },
+    groups: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Group', // Reference to the Group model
+        required: true,
       },
-      name: {
-        type: String,
-        required: true
-      },
-      lastName: {
-        type: String,
-        required: true
-      },
-      avatar: {
-        type: String,
-        // validate: {
-        //   validator: isValidBase64,
-        //   message: 'Avatar must be a valid Base64 encoded string'
-        // },
-        required: true
-      },
-      gender: {
-        type: String,
-        enum: ['MALE', 'FEMALE', 'OTHER']
-      },
-      groups: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Group', // Reference to the Group model
-          required: true,
-        },
-      ],
-      myPhotos: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'GroupPost', // Reference to the GroupPost model
-          required: true,
-        }
-      ],
-      createdAt: {
-        type: Date,
-        default: Date.now
-      },
-      updatedAt: {
-        type: Date,
-        default: Date.now
+    ],
+    myPhotos: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'GroupPost', // Reference to the GroupPost model
+        required: true,
       }
+    ],
+    createdAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
     }
-  ]
+  }
 });
 
 const User = mongoose.model("User", UserSchema);

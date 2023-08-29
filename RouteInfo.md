@@ -26,11 +26,8 @@
 | /api/check-username/:id (deprecated)  | GET    | Checks whether the username already exists or not in database                    |
 |                                       |        |                                                                                   |
 | **PROFILES**                    |        |                                                                                   |
-| /api/profiles                         | GET    | Get All Profiles of Current User                                                  |
-| /api/profiles                         | POST   | Create New Profile of Current User                                                |
-| /api/profiles/my-profile              | GET    | Get Primary Profile details                                                       |
-| /api/profiles/:id                     | GET    | Get Profile Details by ProfileID                                                  |
-| /api/profiles/:id                     | PATCH  | Update Profile Details by ProfileID                                               |
+| /api/users/update-profile             | PATCH  | Create/Update New Profile of Current User                                         |
+| /api/users/my-profile                 | GET    | Get Primary Profile details                                                       |
 | /api/profiles/upload-avatar           | POST   | Upload Image file and get Uploaded Image URL                                      |
 |                                       |        |                                                                                   |
 | **GROUPS**                      |        |                                                                                   |
