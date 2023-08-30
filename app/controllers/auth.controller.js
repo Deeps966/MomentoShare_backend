@@ -28,7 +28,7 @@ router.post("/signup", async (req, res) => {
     }
 
     // Create a new user
-    let payload = await User.create(req.body);
+    let payload = await User.create({ ...req.body });
 
     res.status(200).json({
       message: "User registered successfully",

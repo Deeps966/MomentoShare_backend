@@ -81,11 +81,9 @@ const UserSchema = new mongoose.Schema({
   {
     name: {
       type: String,
-      required: true
     },
     lastName: {
       type: String,
-      required: true
     },
     avatar: {
       type: String,
@@ -93,7 +91,6 @@ const UserSchema = new mongoose.Schema({
       //   validator: isValidBase64,
       //   message: 'Avatar must be a valid Base64 encoded string'
       // },
-      required: true
     },
     gender: {
       type: String,
