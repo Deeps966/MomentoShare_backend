@@ -17,7 +17,6 @@ const groupSchema = new mongoose.Schema({
   },
   groupPhoto: {
     type: String, // You might want to store the image as a URL or a path
-    maxlength: 255,
   },
   members: [
     {
@@ -25,10 +24,6 @@ const groupSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User', // Reference to the User model
         required: true,
-      },
-      profileID: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
       },
       memberRole: {
         type: String,
