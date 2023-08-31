@@ -25,6 +25,9 @@ router.get('/my-profile', async (req, res) => {
 router.patch('/update-profile', async (req, res) => {
   try {
     const { name, lastName, avatar, gender } = req.body
+
+    if (!req.user.details.isProfileVerified) return res.status(400).json({ error: "Profile is not created" });
+
     const profile = await User.findOneAndUpdate(
       { _id: req.user.id },
       {
@@ -47,6 +50,10 @@ router.patch('/update-profile', async (req, res) => {
 // Update Profile by User id
 router.post('/create-profile', async (req, res) => {
   try {
+    const { name, lastName, avatar } = req.body;
+
+    if (!(name || lastName || avatar)) return res.status(400).json({ error: "name, lastName and avatar is required" });
+
     if (req.user.details.isProfileVerified) return res.status(400).json({ error: "Profile is already created" })
 
     const profile = await User.findOneAndUpdate(
