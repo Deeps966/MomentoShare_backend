@@ -14,10 +14,14 @@ router.delete('/remove-member/:id', async (req, res) => {
       { _id: groupId, members: { $elemMatch: { memberID: UserID, memberRole: "ADMIN" } } },
       {
         $set: {
-          members: { isLeft: true }
+          "members.$[elem].isLeft": true
         }
       },
-      { new: true, runValidators: true }
+      {
+        arrayFilters: [{ "elem.memberID": memberID }],
+        new: true,
+        runValidators: true
+      }
     );
 
     // const group = await Group.findById(groupId);
@@ -31,11 +35,17 @@ router.delete('/remove-member/:id', async (req, res) => {
 });
 
 // Add new member group by ID
-router.post('/add-member/:id', async (req, res) => {
+router.post('/add-members/:id', async (req, res) => {
   try {
     const UserID = req.user.id;
     const groupId = req.params.id;
     const members = req.body;
+
+    const groupArr = await Group.findOne({ _id: groupId });
+    const existingMemberIDs = groupArr.members.map(member => member.memberID.toString());
+
+    const membersCount = members.filter(member => existingMemberIDs.includes(member.memberID));
+    if (membersCount.length > 0) return res.status(400).json({ error: "Member already exists in the group" })
 
     const addMember = await Group.findOneAndUpdate(
       { _id: groupId, members: { $elemMatch: { memberID: UserID, memberRole: "ADMIN" } } },
@@ -45,7 +55,6 @@ router.post('/add-member/:id', async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    // const group = await Group.findById(groupId);
     if (!addMember) {
       return res.status(404).json({ error: 'Group not found or you don\'t have access to the group' });
     }
@@ -72,7 +81,12 @@ router.post('/', async (req, res) => {
     // Generating an Invite code for the group with length of "5"
     const inviteCode = await generateUniqueInviteCode(5);
 
-    const newGroup = await Group.create({ ...groupData, details: { ...details, createdBy: id, updatedBy: id, inviteCode }, members });
+    const newGroup = await Group.create({
+      ...groupData,
+      details: { ...details, createdBy: id, updatedBy: id, inviteCode },
+      members
+    });
+
     res.status(201).json(newGroup);
   } catch (error) {
     res.status(500).json({ error: 'Failed to create group ' + error.message });
