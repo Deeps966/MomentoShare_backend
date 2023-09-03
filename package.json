@@ -38,6 +38,7 @@
     "passport-google-oauth20": "^2.0.0",
     "pg": "^8.11.2",
     "swagger-ui-express": "^5.0.0",
+    "underscore": "^1.13.6",
     "winston": "^3.10.0"
   }
 }

@@ -2,7 +2,7 @@ const router = require("express").Router()
 const path = require('path')
 const { upload } = require('../middleware/multer.middleware')
 
-router.get("/upload-avatar", (req, res) => {
+router.get("/upload-page", (req, res) => {
   res.sendFile(path.join(__dirname, '../views', 'upload.html'))
 })
 

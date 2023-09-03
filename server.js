@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const passport = require("passport")
 const cookieParser = require('cookie-parser')
+const _ = require('underscore');
 
 // const swaggerUi = require('swagger-ui-express')
 
@@ -16,7 +17,6 @@ const multerSetup = require('./app/middleware/multer.middleware') // Setup of mu
 const logger = require('./app/utils/logger')
 const viewRoutes = require('./app/routes/route')
 const apiRoutes = require('./app/routes/api')
-
 const app = express()
 const { PORT, SERVER_URL } = process.env
 const corsOptions = {
@@ -27,6 +27,7 @@ const corsOptions = {
 
 // Global Variables
 global.log = logger
+global._ = _
 
 // Middlewares
 app.use(express.json()) // parse requests of content-type - application/json
@@ -68,3 +69,7 @@ mongoose.connection.once("open", function () {
     log.info(`Server started at -> ${SERVER_URL}`)
   })
 })
+
+process.on('uncaughtException', function (err) {
+  console.error('UncaughtException: ' + err.message);
+});

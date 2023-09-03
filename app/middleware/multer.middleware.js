@@ -27,7 +27,7 @@ const upload = multer({ storage })
 
 // --------------------------Custom Middleware---------------------------------------
 // Create Middleware for Group Photo
-const groupPhotoStorage = multer.diskStorage({
+const imageStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = `${UPLOADS_DIRECTORY_PATH}/${req.fileDir}`
 
@@ -44,9 +44,20 @@ const groupPhotoStorage = multer.diskStorage({
   }
 })
 
-const uploadSingleGroupPost = multer({ storage: groupPhotoStorage })
+const uploadImage = multer({
+  storage: imageStorage,
+  limits: { fileSize: 1024 * 1024 * 2 }, // Example: Limit file size to 2MB
+  fileFilter: (req, file, cb) => {
+    // Example: Allow only image files with specific extensions
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('File type not allowed'), false);
+    }
+  },
+})
 
 module.exports = {
   upload,
-  uploadSingleGroupPost,
+  uploadImage,
 }

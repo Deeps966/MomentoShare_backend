@@ -1,28 +1,30 @@
 const express = require('express')
 const router = express.Router()
+const fs = require('fs')
 
 const GroupPost = require('../models/group-post.model') // Import the GroupPost model
-let { uploadSingleGroupPost } = require('../middleware/multer.middleware')
+let { uploadImage } = require('../middleware/multer.middleware')
 const Group = require('../models/group.model')
+const { validateGroupAccess } = require('../utils/group.helper')
 
 const validateGroupID = async (req, res, next) => {
   try {
     const groupID = req.query.groupID
-    if (!groupID) return res.status(404).json({ error: "groupID not found in query of URL" })
-    const group = await Group.findById(groupID)
-    if (group) {
-      req.fileDir = groupID
-      next()
-    } else {
-      return res.status(404).json({ error: "No group found of ID: " + groupID })
-    }
+    if (!groupID) return res.status(404).json({ error: "groupID not found in URL Query" })
+
+    const isValid = await validateGroupAccess(req.user.id, groupID)
+    if (isValid.error) return res.status(403).json(isValid);
+
+    req.fileDir = groupID
+    next()
+
   } catch (error) {
     return res.status(500).json({ error: "Group id Validation failed " + error.message })
   }
 }
 
 // Create a new group post
-router.post('/', validateGroupID, uploadSingleGroupPost.single('image'), async (req, res) => {
+router.post('/', validateGroupID, uploadImage.single('image'), async (req, res) => {
   try {
     const groupID = req.query.groupID
 
@@ -30,11 +32,13 @@ router.post('/', validateGroupID, uploadSingleGroupPost.single('image'), async (
 
     const fileURI = req.file.path
     mediaUrl = process.env.SERVER_URL + "/" + fileURI
+    filePath = req.file.destination + req.file.filename
 
     // Handle the uploaded file if needed...
     const newPost = await GroupPost.create({
       groupID,
       userID: req.user.id,
+      path: filePath,
       mediaUrl,
       mediaFileSize: req.file.size,
       mediaFiletype: req.file.mimetype
@@ -49,7 +53,12 @@ router.post('/', validateGroupID, uploadSingleGroupPost.single('image'), async (
 // Get all group posts
 router.get('/', async (req, res) => {
   try {
-    const posts = await GroupPost.find()
+    const { groupID } = req.query;
+
+    const isValid = await validateGroupAccess(req.user.id, groupID)
+    if (isValid.error) return res.status(403).json(isValid);
+
+    const posts = await GroupPost.find({ groupID })
     res.json(posts)
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve group posts ' + error.message })
@@ -60,6 +69,10 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const postId = req.params.id
+
+    const isValid = await validateGroupAccess(req.user.id, groupID)
+    if (isValid.error) return res.status(403).json(isValid);
+
     const post = await GroupPost.findById(postId)
     if (!post) {
       return res.status(404).json({ error: 'Group post not found' })
@@ -70,30 +83,24 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// Update a group post by ID
-router.put('/:id', async (req, res) => {
-  try {
-    const postId = req.params.id
-    const postData = req.body
-    const updatedPost = await GroupPost.findByIdAndUpdate(postId, postData, { new: true })
-    if (!updatedPost) {
-      return res.status(404).json({ error: 'Group post not found' })
-    }
-    res.json(updatedPost)
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to update group post ' + error.message })
-  }
-})
-
 // Delete a group post by ID
 router.delete('/:id', async (req, res) => {
   try {
     const postId = req.params.id
+
+    const isValid = await validateGroupAccess(req.user.id, groupID)
+    if (isValid.error) return res.status(403).json(isValid);
+
     const deletedPost = await GroupPost.findByIdAndDelete(postId)
     if (!deletedPost) {
       return res.status(404).json({ error: 'Group post not found' })
     }
-    res.status(200).json({ message: 'Group post deleted successfully' })
+
+    fs.unlink(deletedPost.path, (error) => {
+      if (error) return res.status(500).json({ error: 'Failed to delete group post ' + error.message })
+    });
+
+    res.status(200).json({ message: 'Group post deleted successfully', data: deletedPost })
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete group post ' + error.message })
   }

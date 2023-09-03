@@ -11,6 +11,10 @@ const groupPostSchema = new mongoose.Schema({
     ref: 'User', // Reference to the User model
     required: true,
   },
+  path: {
+    type: String,
+    required: true
+  },
   mediaUrl: {
     type: String,
     unique: true,
