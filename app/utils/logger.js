@@ -1,4 +1,4 @@
-const winston = require('winston');
+const winston = require('winston')
 
 // Configure logger
 const logger = winston.createLogger({
@@ -14,6 +14,6 @@ const logger = winston.createLogger({
     new winston.transports.Console(),
     // new winston.transports.File({ filename: 'application.log' }),
   ],
-});
+})
 
-module.exports = logger;
+module.exports = logger

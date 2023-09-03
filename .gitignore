@@ -132,3 +132,6 @@ dist
 
 # node
 package-lock.json
+
+# Uploads directory
+*/uploads

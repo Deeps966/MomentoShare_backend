@@ -1,6 +1,6 @@
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
-const FacebookStrategy = require("passport-facebook").Strategy;
-const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy
+const FacebookStrategy = require("passport-facebook").Strategy
+const passport = require("passport")
 
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, FACEBOOK_APP_ID, FACEBOOK_APP_SECRET } = process.env
 
@@ -13,11 +13,11 @@ passport.use(
       scope: ["profile", "email"]
     },
     function (accessToken, refreshToken, profile, done) {
-      // log.info(profile);
-      done(null, profile);
+      // log.info(profile)
+      done(null, profile)
     }
   )
-);
+)
 
 passport.use(
   new FacebookStrategy(
@@ -28,7 +28,7 @@ passport.use(
       scope: ["profile", "email"] 
     },
     function (accessToken, refreshToken, profile, done) {
-      done(null, profile);
+      done(null, profile)
     }
   )
-);
+)

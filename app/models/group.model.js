@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose')
 
-const groupSchema = new mongoose.Schema({
+const GroupSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -8,7 +8,7 @@ const groupSchema = new mongoose.Schema({
   },
   groupType: {
     type: String,
-    enum: ['PUBLIC', 'PRIVATE'],
+    enum: ['PUBLIC', 'PRIVATE'], // PUBLIC: Big group, Members can only see their own photos, Private: Small group, Members can see all photos
     required: true,
   },
   description: {
@@ -17,6 +17,24 @@ const groupSchema = new mongoose.Schema({
   },
   groupPhoto: {
     type: String, // You might want to store the image as a URL or a path
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Reference to the User model
+    required: true,
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User', // Reference to the User model
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
   },
   members: [
     {
@@ -34,6 +52,10 @@ const groupSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
+      uploadAccess: {
+        type: Boolean,
+        default: false
+      },
       isLeft: {
         type: Boolean,
         default: false,
@@ -44,35 +66,21 @@ const groupSchema = new mongoose.Schema({
       },
     }
   ],
-  photos: [
-    {
-      id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'GroupPost', // Reference to the GroupPost model
-        required: true,
-      },
-    }
-  ],
   details: {
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model
-      required: true,
-    },
-    updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model
-      required: true,
-    },
-    membersCount: {
-      type: Number,
-      default: 1,
-    },
     inviteCode: {
       type: String,
       maxlength: 50,
     },
-    isAnyoneCanJoin: {
+    sortBy: {
+      type: String,
+      enum: ["UPLOAD-ASC", "UPLOAD-DSC", "NAME-ASC", "NAME-DSC", "CAPTURETIME-ASC", "CAPTURETIME-DSC"],
+      default: "UPLOAD-ASC"
+    },
+    isAnyoneCanUpload: {
+      type: Boolean,
+      default: true
+    },
+    isAnyoneCanJoinWithLink: {
       type: Boolean,
       default: false,
     },
@@ -84,17 +92,9 @@ const groupSchema = new mongoose.Schema({
       type: Boolean,
       default: false,
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
   },
-});
+})
 
-const Group = mongoose.model('Group', groupSchema);
+const Group = mongoose.model('Group', GroupSchema)
 
-module.exports = Group;
+module.exports = Group

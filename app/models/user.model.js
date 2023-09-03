@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const { isValidPhoneNumber, isValidEmailDomain, isValidEmail, isValidBase64 } = require("../utils/helper");
+const mongoose = require("mongoose")
+const { isValidPhoneNumber, isValidEmailDomain, isValidEmail, isValidBase64 } = require("../utils/helper")
 
 const UserSchema = new mongoose.Schema({
   mail: {
@@ -77,8 +77,7 @@ const UserSchema = new mongoose.Schema({
       default: Date.now
     }
   },
-  profile:
-  {
+  profile: {
     name: {
       type: String,
     },
@@ -96,20 +95,6 @@ const UserSchema = new mongoose.Schema({
       type: String,
       enum: ['MALE', 'FEMALE', 'OTHER']
     },
-    groups: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Group', // Reference to the Group model
-        required: true,
-      },
-    ],
-    myPhotos: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'GroupPost', // Reference to the GroupPost model
-        required: true,
-      }
-    ],
     createdAt: {
       type: Date,
       default: Date.now
@@ -119,8 +104,8 @@ const UserSchema = new mongoose.Schema({
       default: Date.now
     }
   }
-});
+})
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.model("User", UserSchema)
 
-module.exports = User;
+module.exports = User

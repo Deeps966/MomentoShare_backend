@@ -18,15 +18,15 @@ const groupPostSchema = new mongoose.Schema({
   },
   mediaFiletype: {
     type: String,
-    enum: ['jpg', 'jpeg', 'png', 'gif'],
+    // enum: ['jpg', 'jpeg', 'png', 'gif'],
     required: true
   },
   mediaFileSize: {
     type: Number,
     required: true
   },
-});
+})
 
-const GroupPost = mongoose.model('GroupPost', groupPostSchema);
+const GroupPost = mongoose.model('GroupPost', groupPostSchema)
 
-module.exports = GroupPost;
+module.exports = GroupPost
