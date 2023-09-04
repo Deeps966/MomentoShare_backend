@@ -1,7 +1,7 @@
 const multer = require('multer')
 const path = require('path')
 const fs = require('fs')
-const { UPLOADS_DIRECTORY_PATH, MAX_IMAGE_UPLOAD_SIZE, MAX_VIDEO_UPLOAD_SIZE, MAX_IMAGES_UPLOAD_LIMIT, MAX_VIDEOS_UPLOAD_LIMIT } = process.env
+const { UPLOADS_DIRECTORY_PATH, MAX_IMAGE_UPLOAD_SIZE, MAX_VIDEO_UPLOAD_SIZE, MAX_IMAGE_UPLOAD_LIMIT, MAX_VIDEO_UPLOAD_LIMIT } = process.env
 
 // Set up storage for uploaded files
 const storage = multer.diskStorage({
@@ -44,7 +44,12 @@ const imageStorage = multer.diskStorage({
   }
 })
 
-const uploadImageMulter = multer({ storage: imageStorage })
+const uploadImageMulter = multer({
+  storage: imageStorage, limits: {
+    files: Number(MAX_IMAGE_UPLOAD_LIMIT),
+    fileSize: 1024 * 1024 * Number(MAX_IMAGE_UPLOAD_SIZE), // Convert to bytes
+  }
+})
 
 // Create Middleware for Group Photo
 const videoStorage = multer.diskStorage({
@@ -64,7 +69,13 @@ const videoStorage = multer.diskStorage({
   }
 })
 
-const uploadVideoMulter = multer({ storage: videoStorage })
+const uploadVideoMulter = multer({
+  storage: videoStorage,
+  limits: {
+    files: Number(MAX_VIDEO_UPLOAD_LIMIT),
+    fileSize: 1024 * 1024 * Number(MAX_VIDEO_UPLOAD_SIZE), // Convert to bytes
+  }
+})
 
 module.exports = {
   upload,

@@ -1,6 +1,6 @@
 const fs = require('fs')
 const { uploadImageMulter, uploadVideoMulter } = require("./multer.middleware");
-const { MAX_IMAGE_UPLOAD_SIZE, MAX_VIDEO_UPLOAD_SIZE, MAX_IMAGES_UPLOAD_LIMIT, MAX_VIDEOS_UPLOAD_LIMIT, SUPPORTED_IMAGES_ARRAY, SUPPORTED_VIDEOS_ARRAY } = process.env
+const { MAX_IMAGE_UPLOAD_SIZE, MAX_VIDEO_UPLOAD_SIZE, MAX_IMAGE_UPLOAD_LIMIT, MAX_VIDEO_UPLOAD_LIMIT, SUPPORTED_IMAGE_ARRAY, SUPPORTED_VIDEO_ARRAY } = process.env
 
 const isValidFile = (files, fileType) => {
   const errors = [];
@@ -8,18 +8,17 @@ const isValidFile = (files, fileType) => {
   let maxSize = 0;
 
   if (fileType === 'image') {
-    allowedTypes = SUPPORTED_IMAGES_ARRAY.split(', ')
+    allowedTypes = SUPPORTED_IMAGE_ARRAY.split(', ')
     maxSize = 1024 * 1024 * Number(MAX_IMAGE_UPLOAD_SIZE); // MB
   } else if (fileType === 'video') {
-    allowedTypes = SUPPORTED_VIDEOS_ARRAY.split(', ')
+    allowedTypes = SUPPORTED_VIDEO_ARRAY.split(', ')
     maxSize = 1024 * 1024 * Number(MAX_VIDEO_UPLOAD_SIZE); // MB
   }
 
   // Validate file types and sizes
   files.forEach((file) => {
+    console.log(file)
     if (!allowedTypes.includes(file.mimetype)) errors.push(`Invalid file type: ${file.originalname}, it only Supports: ${allowedTypes.join(', ')}`);
-
-    if (file.size > maxSize) errors.push(`File too large: ${file.originalname}, Max size limit is ${maxSize}`);
   });
 
   // Handle validation errors
@@ -27,7 +26,6 @@ const isValidFile = (files, fileType) => {
     // Remove uploaded files
     files.forEach((file) => {
       fs.unlinkSync(file.path);
-      console.log("File Deleted: " + file.path)
     });
     return { error: errors }
   }
@@ -55,11 +53,11 @@ const uploadImageMiddleware = (req, res, next) => {
 
 const bulkUploadImagesMiddleware = (req, res, next) => {
   // Use multer upload instance
-  uploadImageMulter.array('images', Number(MAX_IMAGES_UPLOAD_LIMIT))(req, res, (err) => {
+  uploadImageMulter.array('images')(req, res, (err) => {
     try {
-      if (err) return res.status(400).json({ error: `Failed upload in Multer: file key required 'images' or File Upload limit exceeds ${MAX_IMAGES_UPLOAD_LIMIT} or ${err.message}` });
+      if (err) return res.status(400).json({ error: `Failed upload in Multer: file key required 'images' or File Upload limit exceeds ${MAX_IMAGE_UPLOAD_LIMIT} or ${err.message}` });
 
-      if (!req.files) return res.status(404).json({ error: "Image Files not found" })
+      if (req.files.length == 0) return res.status(404).json({ error: "Image Files not found" })
 
       const files = req.files;
       const isValid = isValidFile(files, 'image');
@@ -67,7 +65,7 @@ const bulkUploadImagesMiddleware = (req, res, next) => {
 
       next();
     } catch (error) {
-      res.status(500).json({ error: "Failed upload in Multer due to sent files" + error.message })
+      res.status(500).json({ error: "Failed upload in Multer due to sent files: " + error.message })
     }
   });
 };
@@ -86,18 +84,18 @@ const uploadVideoMiddleware = (req, res, next) => {
 
       next();
     } catch (error) {
-      res.status(500).json({ error: "Failed upload in Multer due to sent files" + error.message })
+      res.status(500).json({ error: "Failed upload in Multer due to sent files: " + error.message })
     }
   })
 }
 
 const bulkUploadVideosMiddleware = (req, res, next) => {
   // Use multer upload instance
-  uploadVideoMulter.array('videos', Number(MAX_VIDEOS_UPLOAD_LIMIT))(req, res, (err) => {
+  uploadVideoMulter.array('videos')(req, res, (err) => {
     try {
-      if (err) return res.status(400).json({ error: `Failed upload in Multer: file key required 'videos' or File Upload limit exceeds ${MAX_VIDEOS_UPLOAD_LIMIT} or ${err.message}` });
+      if (err) return res.status(400).json({ error: `Failed upload in Multer: file key required 'videos' or File Upload limit exceeds ${MAX_VIDEO_UPLOAD_LIMIT} or ${err.message}` });
 
-      if (!req.files) return res.status(404).json({ error: "Video Files not found" })
+      if (req.files.length == 0) return res.status(404).json({ error: "Video Files not found" })
 
       const files = req.files;
       const isValid = isValidFile(files, 'video');
@@ -105,7 +103,7 @@ const bulkUploadVideosMiddleware = (req, res, next) => {
 
       next();
     } catch (error) {
-      res.status(500).json({ error: "Failed upload in Multer due to sent files" + error.message })
+      res.status(500).json({ error: "Failed upload in Multer due to sent files: " + error.message })
     }
   });
 };
