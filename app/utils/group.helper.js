@@ -52,14 +52,6 @@ const validateUsers = async (members, groupID) => {
   }
 };
 
-const checkDuplicateMember = async (members) => {
-  try {
-
-  } catch (error) {
-    return { error: "Error validating user existence" };
-  }
-}
-
 
 module.exports = {
   validateGroupAccess,

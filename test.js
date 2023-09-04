@@ -28,3 +28,7 @@ const mongoose = require('mongoose')
 const id = new mongoose.Types.ObjectId('64f42c3867ee08d0d4814fb4')
 
 console.log(id)
+
+const path = require('path')
+let ext = path.extname(`public\\uploads\\video\\64f4cee83d4da5c49434cca5\\1693841814765_X-Men.10.Logan.(2017).mkv`)
+console.log(ext)

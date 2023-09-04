@@ -12,6 +12,12 @@
         <button type="submit">Upload Image</button>
     </form>
 
+    <form action="/api/group-posts/upload-images?groupID=64f5819834fe1606215f8599" method="POST" enctype="multipart/form-data">
+        <h1>Upload Multiple Images</h1>
+        <input type="file" name="image" multiple accept="image/*">
+        <button type="submit">Upload Image</button>
+    </form>
+
     <form action="/api/group-posts?groupID=64f479a3c042565a0eadc4ec" method="POST" enctype="multipart/form-data">
         <h1>Upload Video</h1>
         <input type="file" name="video" accept="video/*">

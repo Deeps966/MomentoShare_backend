@@ -2,12 +2,12 @@ const router = require("express").Router()
 const path = require('path')
 const { upload } = require('../middleware/multer.middleware')
 
-router.get("/upload-page", (req, res) => {
+router.get("/upload", (req, res) => {
   res.sendFile(path.join(__dirname, '../views', 'upload.html'))
 })
 
 // Define a route to handle image uploads (similar to previous example)
-router.post('/upload', upload.single('image'), (req, res) => {
+router.post('/upload-image', upload.single('image'), (req, res) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
@@ -17,7 +17,7 @@ router.post('/upload', upload.single('image'), (req, res) => {
 })
 
 // Define a route to handle file uploads
-router.post('/multilple-upload', upload.array('images', 5), (req, res) => {
+router.post('/upload-images', upload.array('image'), (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).send('No files uploaded.');
   }
