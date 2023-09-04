@@ -12,8 +12,8 @@ const validateGroupID = async (req, res, next) => {
     const groupID = req.query.groupID
     if (!groupID) return res.status(404).json({ error: "groupID not found in URL Query" })
 
-    const isValid = await validateGroupAccess(req.user.id, groupID)
-    if (isValid.error) return res.status(403).json(isValid);
+    const hasValidAccess = await validateGroupAccess(req.user.id, groupID)
+    if (hasValidAccess.error) return res.status(403).json(hasValidAccess);
 
     req.fileDir = groupID
     next()
@@ -50,13 +50,13 @@ router.post('/', validateGroupID, uploadImage.single('image'), async (req, res) 
   }
 })
 
-// Get all group posts
+// Get all group posts By GroupID
 router.get('/', async (req, res) => {
   try {
     const { groupID } = req.query;
 
-    const isValid = await validateGroupAccess(req.user.id, groupID)
-    if (isValid.error) return res.status(403).json(isValid);
+    const hasValidAccess = await validateGroupAccess(req.user.id, groupID)
+    if (hasValidAccess.error) return res.status(403).json(hasValidAccess);
 
     const posts = await GroupPost.find({ groupID })
     res.json(posts)
@@ -65,13 +65,13 @@ router.get('/', async (req, res) => {
   }
 })
 
-// Get a single group post by ID
+// Get a single group post by GroupPost ID
 router.get('/:id', async (req, res) => {
   try {
     const postId = req.params.id
 
-    const isValid = await validateGroupAccess(req.user.id, groupID)
-    if (isValid.error) return res.status(403).json(isValid);
+    const hasValidAccess = await validateGroupAccess(req.user.id, groupID)
+    if (hasValidAccess.error) return res.status(403).json(hasValidAccess);
 
     const post = await GroupPost.findById(postId)
     if (!post) {
@@ -83,13 +83,13 @@ router.get('/:id', async (req, res) => {
   }
 })
 
-// Delete a group post by ID
+// Delete a group post by GroupPostID
 router.delete('/:id', async (req, res) => {
   try {
     const postId = req.params.id
 
-    const isValid = await validateGroupAccess(req.user.id, groupID)
-    if (isValid.error) return res.status(403).json(isValid);
+    const hasValidAccess = await validateGroupAccess(req.user.id, groupID)
+    if (hasValidAccess.error) return res.status(403).json(hasValidAccess);
 
     const deletedPost = await GroupPost.findByIdAndDelete(postId)
     if (!deletedPost) {

@@ -23,3 +23,8 @@ members = [
 
 const data = _.find(members, (m) => m.memberRole == "ADMIN" && m.memberID == "64f42c3867ee08d0d4814fb4")
 console.log(data)
+
+const mongoose = require('mongoose')
+const id = new mongoose.Types.ObjectId('64f42c3867ee08d0d4814fb4')
+
+console.log(id)

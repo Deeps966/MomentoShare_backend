@@ -70,6 +70,7 @@ const GroupSchema = new mongoose.Schema({
     inviteCode: {
       type: String,
       maxlength: 50,
+      required: true
     },
     sortBy: {
       type: String,

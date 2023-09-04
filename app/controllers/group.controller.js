@@ -1,7 +1,9 @@
 const router = require('express').Router()
+const mongoose = require('mongoose')
 const adminMiddleware = require('../middleware/admin.middleware')
 const Group = require('../models/group.model') // Import the Group model
 const generateUniqueInviteCode = require('../utils/generateGroupInviteCode')
+const { validateUsers } = require('../utils/group.helper')
 
 
 // Get a single group by ID
@@ -25,28 +27,30 @@ router.delete('/remove-member/:id', async (req, res) => {
       }
     )
 
-    // const group = await Group.findById(groupId)
-    if (!removeMember) {
-      return res.status(404).json({ error: 'Group not found or you don\'t have access to the group' })
-    }
+    if (!removeMember) return res.status(404).json({ error: 'Group not found or you don\'t have access to the group' })
+    else if (_.filter(removeMember.members, (m) => m.memberID == memberID).length == 0) return res.status(404).json({ error: 'Member not found in group with memberID: ' + memberID })
+
     res.json(removeMember)
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve group ' + error.message })
   }
 })
 
-// Add new member group by ID
+// Add new member group by Group ID
 router.post('/add-members/:id', async (req, res) => {
   try {
     const UserID = req.user.id
     const groupId = req.params.id
     const members = req.body
 
-    const groupArr = await Group.findOne({ _id: groupId })
-    const existingMemberIDs = groupArr.members.map(member => member.memberID.toString())
+    const isValidUsers = await validateUsers(members, groupId)
+    if (isValidUsers.error) return res.status(404).json(isValidUsers)
 
-    const membersCount = members.filter(member => existingMemberIDs.includes(member.memberID))
-    if (membersCount.length > 0) return res.status(400).json({ error: "Member already exists in the group" })
+    // const groupArr = await Group.findOne({ _id: groupId })
+    // const existingMemberIDs = groupArr.members.map(member => member.memberID.toString())
+
+    // const membersCount = members.filter(member => existingMemberIDs.includes(member.memberID))
+    // if (membersCount.length > 0) return res.status(400).json({ error: "Member already exists in the group" })
 
     const addMember = await Group.findOneAndUpdate(
       { _id: groupId, members: { $elemMatch: { memberID: UserID, memberRole: "ADMIN" } } },
@@ -65,30 +69,38 @@ router.post('/add-members/:id', async (req, res) => {
   }
 })
 
+// -------------------------------------------------Figure OUT Whats the issue in Creating new group with required fields---------------------------------------
 // Create a new group
 router.post('/', async (req, res) => {
   try {
-    const id = req.user.id
+    // const userID = new mongoose.Types.ObjectId(req.user.id);
+    const userID = (req.user.id);
+
     const groupData = req.body
     let { details, members = [] } = groupData
     members = [
       {
-        memberID: id,
+        memberID: userID,
         memberRole: "ADMIN"
       },
       ...members
     ]
 
+    const isValidUsers = await validateUsers(members)
+    console.log(isValidUsers)
+    if (isValidUsers.error) return res.status(404).json(isValidUsers)
+
     // Generating an Invite code for the group with length of "5"
     const inviteCode = await generateUniqueInviteCode(5)
-
-    const newGroup = await Group.create({
+    const group = new Group({
       ...groupData,
-      details: { ...details, inviteCode },
-      createdBy: id,
-      updatedBy: id,
+      createdBy: userID,
+      updatedBy: userID,
+      details: { inviteCode },
       members
     })
+
+    const newGroup = await group.save({ runValidators: true })
 
     res.status(201).json(newGroup)
   } catch (error) {
@@ -149,6 +161,9 @@ router.patch('/:id', async (req, res) => {
     const groupId = req.params.id
     const groupData = req.body
     const userID = req.user.id
+
+    const isValidUsers = await validateUsers(groupData.members, groupId)
+    if (isValidUsers.error) return res.status(404).json(isValidUsers)
 
     const updatedGroup = await Group.findOneAndUpdate(
       { _id: groupId, members: { $elemMatch: { memberID: userID, memberRole: "ADMIN" } } },
